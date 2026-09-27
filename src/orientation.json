@@ -1,0 +1,6 @@
+{
+  "flip_lr": false,
+  "flip_ud": false,
+  "transpose": false,
+  "convention": "camera view: as the sensor sees the scene looking outward. Row y0 is the top. Column x0 is the sensor's left, which is the RIGHT of a person facing the lens."
+}

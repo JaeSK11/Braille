@@ -1,0 +1,15 @@
+# Sensor recordings and datasets are never committed
+*.npy
+*.npz
+data/
+results/
+models/
+
+# Papers are cited in REFERENCES.md, not redistributed
+*.pdf
+papers/
+
+__pycache__/
+*.pyc
+.venv/
+venv/
