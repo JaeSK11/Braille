@@ -1,0 +1,7 @@
+{
+  "flip_lr": false,
+  "flip_ud": false,
+  "transpose": false,
+  "convention": "camera view: as the sensor sees the scene looking outward. Row y0 is the top. Column x0 is the sensor's left, which is the RIGHT of a person facing the lens.",
+  "verified": "2026-09-27 hand-wave test: hand on viewer's left -> columns x4..x7 dropped; hand on top -> rows y0..y1 dropped"
+}

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"import numpy, serial, qiskit, qiskit_aer; print\\('deps ok', qiskit.__version__\\)\")",
+      "Bash(ls -a /home/QLARITY /home/paulb 2>/dev/null | grep -iE 'venv|env|conda' ; which python3; ls ~/.venv* ~/miniconda3 ~/anaconda3 2>/dev/null | head -3)",
+      "Read(//home/QLARITY/**)",
+      "Read(//home/paulb/**)"
+    ]
+  }
+}
