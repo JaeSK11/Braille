@@ -58,6 +58,10 @@ models planned in [docs/roadmap.md](docs/roadmap.md).
 | `src/sweep.py` | 52 synthetic scenes through the full quantum pipeline |
 | `src/shape_test.py` | Every library shape, aligned and misaligned, through the full pipeline |
 | `src/live.py` | Live loop: sensor (or a saved recording) → pipeline → printed verdict |
+| `hybrid/quanv.py` | Hybrid approach: quantum convolution over the full 8x8 frame, 2x2 patches → fixed random circuit → <Z> feature map, shot sampling, random-Fourier control (plan: `PLAN-hybrid-quantum-convolution.md`) |
+| `hybrid/dataset.py`, `hybrid/quanv_features.py` | Synthetic 8x8 scene set and cached feature maps with classical controls, plus a ridge probe |
+| `hybrid/train_head.py` | CNN or MLP head on the cached maps, with shot-noise training for the quantum sets |
+| `hybrid/train_quanv.py` | Quantum filters trained end-to-end in torch (frozen, trained, re-uploading) and the trained classical conv control |
 | `sim/square5x5.py` | Standalone analytic noise simulation of the encoding (no SDK needed) |
 | `docs/` | [Hardware](docs/hardware.md), [method](docs/method.md), [simulation](docs/simulation.md), [roadmap](docs/roadmap.md) |
 
