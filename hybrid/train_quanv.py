@@ -11,9 +11,13 @@ Modes:
   frozen    filter angles fixed at their random draw, head trained (rung 4a inside this code, as a check)
   classical C3: a trained 2x2 conv layer with 4K channels + tanh, same head
 
+--test also scores the held-out Test 1 split (plan 4.4 of the learned-identifier plan: wall 450 to 550 mm,
+outside the training range) at the epoch with the best validation accuracy and at the last epoch. Epoch
+selection never sees the test set.
+
 Usage:
     python3 train_quanv.py --mode trained --layers 2 --reupload
-    python3 train_quanv.py --mode classical
+    python3 train_quanv.py --mode classical --test --epochs 60 --lr 1e-2
 """
 import argparse, time
 import numpy as np
@@ -122,6 +126,7 @@ def main():
     ap.add_argument("--lr", type=float, default=3e-3)
     ap.add_argument("--seed", type=int, default=0, help="dataset seed")
     ap.add_argument("--filter-seed", type=int, default=0)
+    ap.add_argument("--test", action="store_true", help="also score Test 1 (wall 450-550 mm, 50 scenes per class)")
     a = ap.parse_args()
     _test()
     torch.manual_seed(a.filter_seed)
@@ -130,6 +135,9 @@ def main():
     tr, va = dataset.split(seeds)
     X, y = torch.tensor(X, dtype=torch.float64), torch.tensor(y)
     Xtr, ytr, Xva, yva = X[tr], y[tr], X[va], y[va]
+    if a.test:
+        Xt, yt, _ = dataset.load(50, a.seed + 1, wall_range=(450.0, 550.0), jitter=a.jitter)
+        Xt, yt = torch.tensor(Xt, dtype=torch.float64), torch.tensor(yt)
     model = Model(a.mode, a.filters, a.layers, a.reupload, a.filter_seed)
     nf = sum(p.numel() for p in model.filt.parameters() if p.requires_grad)
     nh = sum(p.numel() for p in model.head.parameters())
@@ -137,7 +145,7 @@ def main():
     print(f"{tag}: {nf} filter + {nh} head parameters, {len(tr)} train / {len(va)} val")
 
     opt = torch.optim.Adam([p for p in model.parameters() if p.requires_grad], lr=a.lr)
-    loss_fn = nn.CrossEntropyLoss(); best = 0.0; t0 = time.time()
+    loss_fn = nn.CrossEntropyLoss(); best = 0.0; test_at_best = test = float("nan"); t0 = time.time()
     for ep in range(1, a.epochs + 1):
         model.train(); order = torch.randperm(len(tr)); tot = 0.0
         for i in range(0, len(tr), 64):
@@ -147,10 +155,16 @@ def main():
         model.eval()
         with torch.no_grad():
             acc = (model(Xva).argmax(1) == yva).float().mean().item()
-        best = max(best, acc)
+            if a.test:
+                test = (model(Xt).argmax(1) == yt).float().mean().item()
+        if acc > best:
+            best, test_at_best = acc, test
         if ep % 5 == 0 or ep == 1:
             print(f"epoch {ep:3d}  loss {tot/len(tr):.4f}  val {acc:.3f}  {time.time()-t0:.0f}s", flush=True)
-    print(f"\n{tag}: best val {best:.3f}, last {acc:.3f}")
+    line = f"\n{tag}: best val {best:.3f}, last {acc:.3f}"
+    if a.test:
+        line += f", test1 at best-val epoch {test_at_best:.3f}, test1 last {test:.3f}"
+    print(line)
 
 if __name__ == "__main__":
     main()

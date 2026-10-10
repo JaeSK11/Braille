@@ -323,6 +323,27 @@ that plan). Lower risk than rung 5: small circuits, exact gradients, no
    held-out Test 1 split, because "best validation epoch" is selected on
    the same 357 scenes it is scored on. No separation between quantum and
    classical filters is visible at this sample size.
+
+   Converged-budget comparison (60 epochs, lr 1e-2, five filter seeds,
+   `--test`): the epoch is chosen on validation and scored on Test 1, 900
+   held-out scenes at wall 450 to 550 mm, outside the training range.
+   Mean ± standard deviation over seeds:
+
+   | Model | validation (best epoch) | Test 1 at that epoch |
+   |---|---|---|
+   | 4a frozen, L = 1 | 0.935 ± 0.010 | 0.906 ± 0.018 |
+   | 4b trained, L = 1 | 0.933 ± 0.013 | 0.904 ± 0.014 |
+   | 4b trained, L = 3, re-uploading | 0.938 ± 0.009 | 0.915 ± 0.015 |
+   | C3 trained classical conv | 0.923 ± 0.020 | 0.892 ± 0.035 |
+
+   The quantum filters average about 0.01 to 0.02 above the classical conv
+   with half its seed variance, but with five seeds the gap is about one
+   standard deviation and is not a result. Re-uploading over frozen is
+   under one standard deviation. Everything generalises to the
+   out-of-range wall distance with a drop of about 0.03. Settling the
+   small ordering would take 20 or more seeds per model and the `other`
+   class; the cheaper and more informative next test is the shots curve,
+   where the quantum filters are the only models that pay a price.
 5. Add 4a and 4b to `eval.py` curves; `live.py --model` works unchanged
    once the model wraps feature extraction.
 6. Step 2 only if the conditions in section 5 are met.
@@ -341,9 +362,10 @@ exist. `src/hqnn.py` keeps its own 5x5 builder.
   how 4a degrades with shots.
 - **Outcome (2026-10-09, steps 3 and 4):** confirmed. 4a sits with C1, C2
   and C2b under the CNN head; 4b with re-uploading sits with 4a and C3.
-  The open items are a converged-budget comparison on the Test 1 split
-  with more seeds, and the shots curve for 4b, which needs a gradient path
-  through sampled features (not built).
+  The five-seed Test 1 comparison in section 8 shows a 0.01 to 0.02 mean
+  edge for the quantum filters that is within one standard deviation.
+  Open: the shots curve for 4b, which needs a gradient path through
+  sampled features (not built), and more seeds if the ordering matters.
 - **The task may be too easy.** If rung 1 already solves the aligned
   library, the interesting comparisons are the `other` class, misalignment,
   and accuracy versus shots.
